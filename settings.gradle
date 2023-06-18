@@ -1,0 +1,5 @@
+rootProject.name = 'java-taxi-metrics'
+include 'metrics-app'
+include 'taxi-provider-app'
+include 'dto'
+

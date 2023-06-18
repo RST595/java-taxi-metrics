@@ -1,0 +1,20 @@
+### Get all available classes
+GET http://localhost:8090/info/classes
+
+### Calculate distance between two coordinates
+POST http://localhost:8090/info/distance
+Content-Type: application/json
+
+[
+  {
+    "longitude":"50.1",
+    "latitude":"45.5"
+  },
+  {
+    "longitude":"55.1",
+    "latitude":"41.5"
+  }
+]
+
+### Get price
+GET http://localhost:8090/taxi/price?clid=123&apikey=key&rll=50.45,45.45~55.1,50.4

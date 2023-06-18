@@ -1,0 +1,45 @@
+#  docker compose up -d    -d for detach run
+
+version: '3.7'
+
+services:
+  postgres:
+    image: postgres:14.1
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: taxi
+
+  metrics-app:
+    image: metrics-app:latest
+    ports:
+      - 8080:8080
+    environment:
+      - TAXI_CLID=id
+      - TAXI_APIKEY=key
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/taxi
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+
+  taxi-provider-app:
+    image: taxi-provider-app:latest
+    ports:
+      - 8090:8090
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - 3000:3000
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin

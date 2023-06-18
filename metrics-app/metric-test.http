@@ -1,0 +1,17 @@
+### Get all available classes
+GET http://localhost:8080/info
+
+### Calculate distance between two coordinates
+POST http://localhost:8080/info
+Content-Type: application/json
+
+[
+  {
+    "longitude":"50.1",
+    "latitude":"45.5"
+  },
+  {
+    "longitude":"55.1",
+    "latitude":"41.5"
+  }
+]
