@@ -21,6 +21,8 @@ public class InfoScheduler {
 
     @Value("${app.client.host}")
     private String host;
+    @Value("${app.request.number}")
+    private int numberOfRequests;
 
     @Scheduled(cron = "${app.schedule.cron}")
     void getAvailableClasses() {
@@ -31,7 +33,7 @@ public class InfoScheduler {
                 .baseUrl(host + "/classes")
                 .build();
 
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < numberOfRequests; i++) {
             callExternalServiceAndRecordMetrics(counter, timer, webClient);
             log.info(String.format(logLine, i + 1));
         }
@@ -42,7 +44,7 @@ public class InfoScheduler {
         try {
             webClient.get().retrieve().bodyToMono(String.class).block();
         } catch (WebClientRequestException exception) {
-            log.error("/info/classes not response");
+            log.error("/info/classes not response: {}", exception.getMessage());
         }
         timer.record(System.currentTimeMillis() - startRequest, TimeUnit.MILLISECONDS);
         counter.increment();

@@ -1,37 +1,32 @@
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/taxi
-    username: admin
-    password: password
-    driver-class-name: org.postgresql.Driver
   jpa:
-    database: postgresql
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQL94Dialect
-        jdbc:
-          lob:
-            non_contextual_creation: true
-      database-platform: org.hibernate.dialect.PostgreSQL9Dialect
+    database: postgresql
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://psql-taxi:5432/taxi
+    username: admin
+    password: password
 
 app:
   client:
-    host: http://host.docker.internal:8090/info
+    host: http://taxi-provider-svc:8090/info
   schedule:
     cron: "*/10 * * * * *"
   request:
-    number: 50
+    number: 1
   coordinate:
     start-longitude: 50.189683
     start-latitude: 53.222579
     finish-longitude: 50.102834
     finish-latitude: 53.199131
   provider:
-    url: host.docker.internal:8090/taxi/price
+    url: taxi-provider-svc:8090/taxi/price
     clid: ${TAXI_CLID}
     apiKey: ${TAXI_APIKEY}
 
@@ -44,8 +39,8 @@ management:
     health:
       show-details: always
 
-# Section for prometheus. Also need add 'prometheus' to management.endpoints.web.exposure.include, if not "*"
-# Available at host/actuator/prometheus
+  # Section for prometheus. Also need add 'prometheus' to management.endpoints.web.exposure.include, if not "*"
+  # Available at host/actuator/prometheus
   metrics:
     distribution:
       percentiles-histogram:

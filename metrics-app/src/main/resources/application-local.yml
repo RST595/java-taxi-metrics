@@ -18,6 +18,8 @@ app:
     host: http://localhost:8090/info
   schedule:
     cron: "*/10 * * * * *"
+  request:
+    number: 50
   coordinate:
     start-longitude: 50.189683
     start-latitude: 53.222579

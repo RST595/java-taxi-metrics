@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metrics-app
+spec:
+  selector:
+    matchLabels:
+      app: metrics-app
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: metrics-app
+    spec:
+      containers:
+        - name: metrics-app
+          image: metrics-app:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: k8s
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: metrics-app-svc
+spec:
+  selector:
+    app: metrics-app # APP!!! NOT TYPE!!!
+  ports:
+    - protocol: TCP
+      port: 8080
+      name: tcp-80
+      targetPort: 8080
+  type: NodePort

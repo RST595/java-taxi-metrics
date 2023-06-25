@@ -1,0 +1,100 @@
+# Define secret for database
+apiVersion: v1
+kind: Secret
+metadata:
+  name: psql-taxi-secrets
+type: kubernetes.io/basic-auth
+data:
+  password: cGFzc3dvcmQK
+
+---
+# Define configMap for database
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: psql-taxi-db-config
+  labels:
+    app: psql
+data:
+  POSTGRES_DB: taxi
+  POSTGRES_USER: admin
+
+---
+# Define a 'Persistent Volume Claim'(PVC) for PSQL Storage, dynamically provisioned by cluster
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: psql-taxi-pv-claim # name of PVC essential for identifying the storage data
+  labels:
+    app: psql-taxi
+    tier: database
+spec:
+  accessModes:
+    - ReadWriteOnce   #This specifies the mode of the claim that we are trying to create.
+  resources:
+    requests:
+      storage: 100Mi    #This will tell kubernetes about the amount of space we are trying to claim.
+---
+# Configure 'Deployment' of psql server
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: psql-taxi
+  labels:
+    app: psql-taxi
+    tier: database
+spec:
+  selector: # psql Pod Should contain same labels
+    matchLabels:
+      app: psql-taxi
+      tier: database
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels: # Must match 'Service' and 'Deployment' selectors
+        app: psql-taxi
+        tier: database
+    spec:
+      containers:
+        - image: postgres # image from docker-hub
+          imagePullPolicy: "IfNotPresent"
+          name: psql-taxi
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: psql-taxi-secrets
+                  key: password
+          envFrom:
+            - configMapRef:
+                name: psql-taxi-db-config
+            - secretRef:
+                name: psql-taxi-secrets
+          ports:
+            - containerPort: 5432
+              name: psql-taxi
+          volumeMounts: # Mounting volume obtained from Persistent Volume Claim
+            - name: psql-taxi-persistent-storage
+              mountPath: /var/lib/psql #This is the path in the container on which the mounting will take place.
+      volumes:
+        - name: psql-taxi-persistent-storage # Obtaining 'volume' from PVC
+          persistentVolumeClaim:
+            claimName: psql-taxi-pv-claim
+---
+# Define a 'Service' To Expose psql to Other Services
+apiVersion: v1
+kind: Service
+metadata:
+  name: psql-taxi  # DNS name
+  labels:
+    app: psql-taxi
+    tier: database
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector: # psql Pod Should contain same labels
+    app: psql-taxi
+    tier: database
+  clusterIP: None  # We Use DNS, Thus ClusterIP is not relevant
