@@ -2,8 +2,6 @@ package com.rst.metrics.controller;
 
 import com.rst.metrics.apiclient.InfoClient;
 import com.rst.metrics.dto.Coordinate;
-import com.rst.metrics.entity.MomentPrice;
-import com.rst.metrics.service.TaxiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -20,7 +20,7 @@ spring:
 
 app:
   client:
-    host: host.docker.internal:8090/info
+    host: http://host.docker.internal:8090/info
   schedule:
     cron: "*/10 * * * * *"
   coordinate:

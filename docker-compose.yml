@@ -31,6 +31,8 @@ services:
 
   prometheus:
     image: prom/prometheus
+    #    extra_hosts: # For call metric service on localhost
+    #      - "host.docker.internal:host-gateway"
     ports:
       - 9090:9090
     volumes:
