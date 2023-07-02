@@ -1,0 +1,47 @@
+Monitoring kubernetes cluster is as much important as deploying application in kubernetes.
+When it comes to monitoring , prometheus and grafana are the popular tools. Prometheus is a open source
+monitoring tool which collect and store metrics data and grafana visualize the data. Grafana provide charts,
+graph etc. and helpfull to visualize data collected by prometheus.
+In this post, we are installing prometheus and grafana in minikube cluster using helm. We are integrating prometheus
+with grafana and create a dashboard in grafana to monitor the k8s cluster.
+
+Prerequisite: minikube, helm (brew install helm) installed in your local machine.
+
+First open your cmd and download prometheus and grafana repo using helm:
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+
+Then install prometheus:
+helm install prometheus prometheus-community/prometheus
+helm install -f values.yml prometheus prometheus-community/prometheus
+(Uninstall:    helm list        helm uninstall releasename -n namespacename)
+
+It will install required prometheus component. There is a k8s service already created for accessing prometheus gui,
+but it's using cluster . though we can't access it in minikube, so we can create a new service using node-port:
+kubectl expose service prometheus-server --type=NodePort --target-port=9090 --name=prometheus-server-nodeport
+
+We can now access prometheus gui:
+minikube service prometheus-server-nodeport
+
+Our prometheus setup completed. Now we can install grafana:
+helm install grafana grafana/grafana
+
+Create a new service with node-port:
+kubectl expose service grafana --type=NodePort --target-port=3000 --name=grafana-nodeport
+
+Try to access grafana dashboard:
+minikube service grafana-nodeport
+
+Now we need to find out the username and password for grafana ui. Open your git bash terminal and run the
+following commands to get password of admin user:
+kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+
+Add prometheus datasource URL - http://prometheus-server
+
+Now try to login with admin user and respective password, then go to data source and add prometheus url which we
+already created. Click save and test. We have added data source as our prometheus. Now we need a dashboard, for
+simplifying thing we can import a existing grafana dashboard instead of creating a new dashboard from scratch.
+Go to dashboard and import. We are using a dashboard available on grafana.com numbered “3662”. Add the dashboard
+number and hit load<. On next screen choose our prometheus datasource and import. Now we have installed our grafana
+dashboard.
